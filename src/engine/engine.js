@@ -56,34 +56,37 @@ class Engine {
         return { graph, inDegree };
     }
 
-    topoSort(workflow) {
-        const { graph, inDegree } = this.buildGraph(workflow);
-        const queue = [];
-        for (const node in inDegree) {
-            if (inDegree[node] === 0) {
-                queue.push(node);
-            }
-        }
-        const sorted = [];
-        while (queue.length > 0) {
-            const node = queue.shift();
-            sorted.push(node);
+
+    buildLevels(graph, inDegree) {
+    const levels = [];
+    let queue = Object.keys(inDegree).filter(id => inDegree[id] === 0);
+
+    while (queue.length > 0) {
+        const currentLevel = [...queue];
+        levels.push(currentLevel);
+
+        const nextQueue = [];
+
+        currentLevel.forEach(node => {
             graph[node].forEach(neighbor => {
                 inDegree[neighbor]--;
                 if (inDegree[neighbor] === 0) {
-                    queue.push(neighbor);
+                    nextQueue.push(neighbor);
                 }
             });
-        }
-        if (sorted.length !== workflow.nodes.length) {
-            throw new Error("Workflow contains a cycle");
-        }
-        return sorted;
+        });
+
+        queue = nextQueue;
     }
+
+    return levels;
+}
+    
 
     async run(workflow) {
         this.validate(workflow);
-        const executionOrder = this.topoSort(workflow);
+        const { graph, inDegree } = this.buildGraph(workflow);
+        const levels = this.buildLevels(graph, inDegree);
         const outputs = {};
         const startedAt = new Date();
         const finalOutputs = {
@@ -103,51 +106,54 @@ class Engine {
             }
             incomingEdges.get(edge.target).push(edge.source);
         });
+        
+        for (const level of levels) {
+    await Promise.all(level.map(async (nodeId) => {
+        const node = nodeMap.get(nodeId);
 
-        for (const nodeId of executionOrder) {
-            const node = nodeMap.get(nodeId);
+        if (!node) {
+            throw new Error(`Node with id ${nodeId} not found`);
+        }
 
-            if (!node) {
-                throw new Error(`Node with id ${nodeId} not found`);
-            }
-            const block = this.blockRegistry[node.type];
+        const block = this.blockRegistry[node.type];
 
-            let input = {};
-            
-            if (incomingEdges.has(nodeId)) {
-                 incomingEdges.get(nodeId).forEach(sourceId => {
+        let input = {};
+
+        if (incomingEdges.has(nodeId)) {
+            incomingEdges.get(nodeId).forEach(sourceId => {
                 input = { ...input, ...outputs[sourceId] };
             });
         }
-            
-            try {
-                const currentOutput = await block.execute(input, node.data);
-                outputs[node.id] = currentOutput;
-                finalOutputs.results.push({
-                    nodeId: node.id,
-                    type: node.type,
-                    status: "success",
-                    output: currentOutput,
-                    error: null,
-                });
-            } catch (error) {
-                finalOutputs.results.push({
-                    nodeId: node.id,
-                    type: node.type,
-                    status: "failed",
-                    output : null,
-                    error: error.message,
-                });
-                finalOutputs.finishedAt = new Date();
-                const err = new Error(`Error executing node ${node.id} of type ${node.type}: ${error.message}`);
-                err.execution = finalOutputs;
-                throw err;
-            }
-        } 
 
-        finalOutputs.finishedAt = new Date(); 
+        try {
+            const currentOutput = await block.execute(input, node.data);
+            outputs[node.id] = currentOutput;
+            finalOutputs.results.push({
+                nodeId: node.id,
+                type: node.type,
+                status: "success",
+                output: currentOutput,
+                error: null,
+            });
+        } catch (error) {
+            finalOutputs.results.push({
+                nodeId: node.id,
+                type: node.type,
+                status: "failed",
+                output: null,
+                error: error.message,
+            });
+            finalOutputs.finishedAt = new Date();
+            const err = new Error(`Error executing node ${node.id} of type ${node.type}: ${error.message}`);
+            err.execution = finalOutputs;
+            throw err;
+        }
+    }));
+        }
+
+        finalOutputs.finishedAt = new Date();
         return finalOutputs;
     }
 }
-
+    
 export default Engine;
