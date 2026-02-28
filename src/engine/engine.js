@@ -62,8 +62,21 @@ class Engine {
             results: [],
         };
 
+        const nodeMap = new Map();
+        const incomingEdges = new Map();
+
+        workflow.nodes.forEach(node => nodeMap.set(node.id,node));
+
+        workflow.edges.forEach(edge => {
+            if (!incomingEdges.has(edge.target)) {
+                incomingEdges.set(edge.target, []);
+            }
+            incomingEdges.get(edge.target).push(edge.source);
+        });
+
         for (const nodeId of executionOrder) {
-            const node = workflow.nodes.find(n => n.id === nodeId);
+            const node = nodeMap.get(nodeId);
+
             if (!node) {
                 throw new Error(`Node with id ${nodeId} not found`);
             }
@@ -73,12 +86,13 @@ class Engine {
             }
 
             let input = {};
-            workflow.edges.forEach(edge => {
-                if (edge.target === nodeId) {
-                    input = { ...input, ...outputs[edge.source] };
-                }
+            
+            if (incomingEdges.has(nodeId)) {
+                 incomingEdges.get(nodeId).forEach(sourceId => {
+                input = { ...input, ...outputs[sourceId] };
             });
-
+        }
+            
             try {
                 const currentOutput = await block.execute(input, node.data);
                 outputs[node.id] = currentOutput;
@@ -90,19 +104,17 @@ class Engine {
                     error: null,
                 });
             } catch (error) {
-                outputs[node.id] = { error: error.message };
                 finalOutputs.results.push({
                     nodeId: node.id,
                     type: node.type,
                     status: "failed",
-                    output: outputs[node.id],
+                    output : null,
                     error: error.message,
                 });
                 finalOutputs.finishedAt = new Date();
-                throw {
-                    message: `Error executing node ${node.id} of type ${node.type}: ${error.message}`,
-                    execution: finalOutputs,
-                };
+                const err = new Error(`Error executing node ${node.id} of type ${node.type}: ${error.message}`);
+                err.execution = finalOutputs;
+                throw err;
             }
         } 
 
