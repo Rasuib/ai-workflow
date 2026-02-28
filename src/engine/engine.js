@@ -10,6 +10,36 @@ class Engine {
         if (!Array.isArray(workflow.edges) || !Array.isArray(workflow.nodes)) {
             throw new Error("Workflow must have edges and nodes arrays");
         }
+
+        const set = new Set();
+        workflow.nodes.forEach(node => {
+            if (!node.id || !node.type) {
+            throw new Error("Each node must have an id and type");
+             }
+            if (set.has(node.id)) {
+                throw new Error(`Duplicate node id found: ${node.id}`);
+            }
+            if (!this.blockRegistry[node.type]) {
+                throw new Error(`Unknown block type: ${node.type}`);
+            }
+            set.add(node.id);
+});
+
+        workflow.edges.forEach(edge =>{
+            if(!edge.id || !edge.source || !edge.target){
+                throw new Error("Each edge must have an id, source and target");
+            }
+            if(!set.has(edge.source)){
+                throw new Error(`Edge source ${edge.source} does not exist`);
+            }
+            if(!set.has(edge.target)){
+                throw new Error(`Edge target ${edge.target} does not exist`);
+            }
+            if(edge.source === edge.target){
+                throw new Error(`Edge cannot have the same source and target: ${edge.source}`);
+            }
+
+        })
     }
 
     buildGraph(workflow) {
@@ -81,9 +111,6 @@ class Engine {
                 throw new Error(`Node with id ${nodeId} not found`);
             }
             const block = this.blockRegistry[node.type];
-            if (!block) {
-                throw new Error(`Unknown Block Type: ${node.type}`);
-            }
 
             let input = {};
             
