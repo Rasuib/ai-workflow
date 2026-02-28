@@ -9,8 +9,8 @@ const mockWorkflow = {
         { id: 'node-2', type: 'sentiment', data: { model: 'gemini' } }
     ],
     edges: [
-        { id: 'edge-1', source: 'node-1', target: 'node-2' }, // Trigger -> Sentiment
-        { id: 'edge-2', source: 'node-2', target: 'node-3' }  // Sentiment -> Email
+        { id: 'edge-1', source: 'node-1', target: 'node-2' }, 
+        { id: 'edge-2', source: 'node-2', target: 'node-3' }  
     ]
 };
 
