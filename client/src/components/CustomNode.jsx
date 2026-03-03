@@ -31,7 +31,7 @@ function CustomNode({ data, type }) {
             </div>
             
             <div style={{ fontSize: '14px' }}>
-                {data.label || type}
+                {data.text || type}
             </div>
 
             <Handle type="source" position={Position.Bottom} />

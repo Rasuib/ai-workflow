@@ -1,8 +1,10 @@
 import { useNodesState, useEdgesState, ReactFlow, useReactFlow, ReactFlowProvider,addEdge , Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import BlockPanel from './components/BlockPanel';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import CustomNode from './components/CustomNode.jsx';
+import ConfigPanel from './components/ConfigPanel.jsx';
+import axios from 'axios';
 
 const nodeTypes = {
     trigger: CustomNode,
@@ -13,6 +15,16 @@ function AppContent() {
   const { screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [results, setResults] = useState(null);
+
+  const onNodeClick = (event, node) => {
+    setSelectedNodeId(node.id);
+  };
+
+  const onConfigClose = () => {
+    setSelectedNodeId(null);
+  }
 
   const onDragOver = (event) => {
     event.preventDefault();
@@ -26,7 +38,7 @@ function AppContent() {
       id: `node-${Date.now()}`,
       type,
       position,
-      data: { label: type },
+      data: { text : type },
     };
     setNodes((prev) => [...prev, newNode]);
   };
@@ -56,6 +68,7 @@ function AppContent() {
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
+          onNodeClick={onNodeClick}
           onEdgesChange={onEdgesChange}
           onDragOver={onDragOver}
           onDrop={onDrop}
@@ -63,8 +76,10 @@ function AppContent() {
           nodeTypes={nodeTypes}
         >
           <Background />
+          
         </ReactFlow>
       </div>
+      <ConfigPanel selectedNode={nodes.find(n => n.id === selectedNodeId)} setNodes={setNodes} />
     </div>
   );
 }
