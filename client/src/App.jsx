@@ -1,4 +1,4 @@
-import { useNodesState, useEdgesState, ReactFlow, useReactFlow, ReactFlowProvider,addEdge } from '@xyflow/react';
+import { useNodesState, useEdgesState, ReactFlow, useReactFlow, ReactFlowProvider,addEdge , Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import BlockPanel from './components/BlockPanel';
 import { useCallback } from 'react';
@@ -61,7 +61,9 @@ function AppContent() {
           onDrop={onDrop}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
-        />
+        >
+          <Background />
+        </ReactFlow>
       </div>
     </div>
   );
