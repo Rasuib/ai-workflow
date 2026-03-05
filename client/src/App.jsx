@@ -22,6 +22,34 @@ function AppContent() {
     setSelectedNodeId(node.id);
   };
 
+  const handleExecute = async () => {
+    const workflow = serializeWorkflow(nodes, edges);
+    try{
+      const response = await axios.post('http://localhost:3000/workflow/execute', workflow);
+      console.log('Execution results:', response.data);
+      setResults(response.data);
+
+
+      const resultMap = {};
+      response.data.results.forEach(result => {
+        resultMap[result.nodeId] = result;
+      });
+      
+      setNodes((nds) => nds.map((n) => ({
+        ...n,
+        data: {
+          ...n.data,
+          executionResult: resultMap[n.id] || null,
+        },
+      })));
+
+      
+    }
+    catch (error) { 
+      console.error('Execution error:', error.response ? error.response.data : error.message);
+      setResults({ error: error.response ? error.response.data : error.message });
+    }
+  }
   const onConfigClose = () => {
     setSelectedNodeId(null);
   }
@@ -76,6 +104,29 @@ function AppContent() {
           nodeTypes={nodeTypes}
         >
           <Background />
+          <div style={{ 
+    position: 'absolute', 
+    bottom: '20px', 
+    left: '50%', 
+    transform: 'translateX(-50%)',
+    zIndex: 10,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px'
+}}>
+    <button onClick={handleExecute} style={{
+        padding: '12px 32px',
+        background: '#6366f1',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        fontSize: '16px',
+    }}>
+        Execute Workflow
+    </button>
+</div>
           
         </ReactFlow>
       </div>
