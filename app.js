@@ -1,7 +1,9 @@
 import express from 'express';
 import workflowRouter from './src/routes/workflow.js';
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
 
 
 

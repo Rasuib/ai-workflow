@@ -31,7 +31,7 @@ function AppContent() {
 
 
       const resultMap = {};
-      response.data.results.forEach(result => {
+      response.data.outputs.results.forEach(result => {
         resultMap[result.nodeId] = result;
       });
       
@@ -43,7 +43,7 @@ function AppContent() {
         },
       })));
 
-      
+
     }
     catch (error) { 
       console.error('Execution error:', error.response ? error.response.data : error.message);

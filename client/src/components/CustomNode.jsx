@@ -9,10 +9,16 @@ const typeColors = {
 function CustomNode({ data, type }) {
     const color = typeColors[type] || '#888';
     
+    const borderColor = data.executionResult === 'success' 
+        ? '#22c55e'
+        : data.status === 'failed'
+        ? '#ef4444'
+        : color;
+
     return (
         <div style={{
             background: '#1e1e2f',
-            border: `2px solid ${color}`,
+            border: `2px solid ${borderColor}`,
             borderRadius: '8px',
             padding: '12px 20px',
             minWidth: '150px',
@@ -23,7 +29,7 @@ function CustomNode({ data, type }) {
             
             <div style={{ 
                 fontSize: '12px', 
-                color: color, 
+                color: borderColor, 
                 textTransform: 'uppercase',
                 marginBottom: '4px'
             }}>
@@ -33,6 +39,16 @@ function CustomNode({ data, type }) {
             <div style={{ fontSize: '14px' }}>
                 {data.text || type}
             </div>
+
+            {data.executionResult && (
+                <div style={{
+                    marginTop: '6px',
+                    fontSize: '11px',
+                    color: borderColor,
+                }}>
+                    {data.status}
+                </div>
+            )}
 
             <Handle type="source" position={Position.Bottom} />
         </div>
