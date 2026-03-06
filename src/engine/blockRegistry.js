@@ -1,4 +1,13 @@
 import geminiClient from "../services/geminiClient.js";   
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 
 const BLOCKS = {
@@ -28,7 +37,14 @@ const BLOCKS = {
     email : {
         type : 'email',
         execute : async(input,data) => {
-            return { emailSentFor: input.sentiment };
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: data.to,
+                subject: data.subject,
+                text: `Workflow sentiment result: ${input.sentiment}`,
+            });
+
+            return { emailSent: true, to: data.to };
         }
     }
 }

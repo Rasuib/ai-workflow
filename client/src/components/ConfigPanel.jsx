@@ -31,6 +31,22 @@ const handleChange = (field, value) => {
         />
     </div>
 )}
+{selectedNode.type === 'email' && (
+    <div>
+        <label>Recipient Email:</label>
+        <input
+            type="email"
+            value={selectedNode.data.to || ''}
+            onChange={(e) => handleChange('to', e.target.value)}
+        />
+        <label>Subject:</label>
+        <input
+            type="text"
+            value={selectedNode.data.subject || ''}
+            onChange={(e) => handleChange('subject', e.target.value)}
+        />
+    </div>
+)}
         </div>
     );
 };
