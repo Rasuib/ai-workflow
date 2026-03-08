@@ -10,11 +10,12 @@ const typeColors = {
 function CustomNode({ data, type }) {
     const color = typeColors[type] || '#888';
     
-    const borderColor = data.executionResult === 'success' 
-        ? '#22c55e'
-        : data.status === 'failed'
-        ? '#ef4444'
-        : color;
+    const borderColor = data.executionResult?.status === 'success' 
+    ? '#22c55e'
+    : data.executionResult?.status === 'failed'
+    ? '#ef4444'
+    : color;
+
 
     return (
         <div style={{
@@ -47,7 +48,7 @@ function CustomNode({ data, type }) {
                     fontSize: '11px',
                     color: borderColor,
                 }}>
-                    {data.status}
+                    {data.executionResult?.status}
                 </div>
             )}
 
