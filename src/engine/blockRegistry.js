@@ -53,7 +53,7 @@ const BLOCKS = {
         type:'summarize',
         execute: async(input,data) =>{
             if (!input.text) {
-                throw new Error("Sentiment block requires 'text' input");
+                throw new Error("Summarize block requires 'text' input");
         }
         const prompt = `Summarize the following text in a concise manner: ${input.text}. Provide a brief summary that captures the main points of the text. Do not include any additional information or analysis, just a straightforward summary.`;
         const summary = await geminiClient.generateContent(prompt);
