@@ -41,10 +41,23 @@ const BLOCKS = {
                 from: process.env.EMAIL_USER,
                 to: data.to,
                 subject: data.subject,
-                text: `Workflow sentiment result: ${input.sentiment}`,
+                text: `Workflow execution results:\n\n${Object.entries(input)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n')}`
             });
 
             return { emailSent: true, to: data.to };
+        }
+    },
+    summarize:{
+        type:'summarize',
+        execute: async(input,data) =>{
+            if (!input.text) {
+                throw new Error("Sentiment block requires 'text' input");
+        }
+        const prompt = `Summarize the following text in a concise manner: ${input.text}. Provide a brief summary that captures the main points of the text. Do not include any additional information or analysis, just a straightforward summary.`;
+        const summary = await geminiClient.generateContent(prompt);
+        return {summary: summary.trim()};
         }
     }
 }

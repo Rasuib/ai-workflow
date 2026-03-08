@@ -4,6 +4,7 @@ const typeColors = {
     trigger: '#4CAF50',
     sentiment: '#2196F3',
     email: '#FF9800',
+    summarize: '#9C27B0',
 };
 
 function CustomNode({ data, type }) {

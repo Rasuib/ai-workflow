@@ -10,6 +10,7 @@ const nodeTypes = {
     trigger: CustomNode,
     sentiment: CustomNode,
     email: CustomNode,
+    summarize: CustomNode,
 };
 function AppContent() {
   const { screenToFlowPosition } = useReactFlow();

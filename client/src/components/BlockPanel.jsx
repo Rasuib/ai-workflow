@@ -42,6 +42,13 @@ const BlockPanel = () => {
       >
         Email
       </div>
+      <div
+        draggable
+        onDragStart={(e) => handleDragStart(e, "summarize")}
+        style={blockStyle}
+      >
+        Summarize
+      </div>
     </div>
   );
 };
