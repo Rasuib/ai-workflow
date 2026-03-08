@@ -16,15 +16,30 @@ function AppContent() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [webhookUrl, setWebhookUrl] = useState(null);
   const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const onNodeClick = (event, node) => {
     setSelectedNodeId(node.id);
   };
 
+  const handleSaveWorkflow = async () => {
+    const workflow = serializeWorkflow(nodes, edges);
+    try {
+      const response = await axios.post('http://localhost:3000/webhook/save', workflow);
+      setWebhookUrl(response.data.webhookUrl);
+      
+    } catch (error) {
+      console.error('Error saving workflow:', error.response ? error.response.data : error.message);
+      
+    }
+  };
   const handleExecute = async () => {
     const workflow = serializeWorkflow(nodes, edges);
+    setLoading(true);
     try{
+      
       const response = await axios.post('http://localhost:3000/workflow/execute', workflow);
       console.log('Execution results:', response.data);
       setResults(response.data);
@@ -48,6 +63,8 @@ function AppContent() {
     catch (error) { 
       console.error('Execution error:', error.response ? error.response.data : error.message);
       setResults({ error: error.response ? error.response.data : error.message });
+    }finally{
+      setLoading(false);
     }
   }
   const onConfigClose = () => {
@@ -115,17 +132,60 @@ function AppContent() {
     alignItems: 'center',
     gap: '8px'
 }}>
-    <button onClick={handleExecute} style={{
+  <div style={{
+    padding: '16px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '12px',
+}}>
+    <button 
+    onClick={handleExecute}
+    disabled={loading}
+    style={{
         padding: '12px 32px',
-        background: '#6366f1',
+        background: loading ? '#4338ca' : '#6366f1',
         color: 'white',
         border: 'none',
         borderRadius: '8px',
-        cursor: 'pointer',
+        cursor: loading ? 'not-allowed' : 'pointer',
         fontSize: '16px',
+    }}
+>
+    {loading ? 'Running...' : 'Execute Workflow'}
+</button>
+<button
+  onClick={handleSaveWorkflow}
+  style={{
+        padding: '12px 32px',
+        background: loading ? '#4338ca' : '#6366f1',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: loading ? 'not-allowed' : 'pointer',
+        fontSize: '16px',
+    }}
+>
+  Save WorkFlow
+</button>
+
+</div>
+{webhookUrl && (
+    <div style={{
+        background: '#1e1e2f',
+        color: '#22c55e',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        fontSize: '12px',
+        wordBreak: 'break-all',
+        maxWidth: '300px',
+        textAlign: 'center'
     }}>
-        Execute Workflow
-    </button>
+        Webhook URL: {webhookUrl}
+    </div>
+)}
 </div>
           
         </ReactFlow>

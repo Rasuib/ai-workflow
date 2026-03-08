@@ -16,7 +16,7 @@ class GeminiClient {
 
     async generateContent(prompt) {
         const response = await this.client.models.generateContent({
-            model: "gemini-2.5-flash-preview",
+            model: "gemini-3-flash-preview",
             contents: prompt,
         });
         return response.text;

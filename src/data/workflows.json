@@ -1,0 +1,41 @@
+{
+  "workflow-1772972784056": {
+    "nodes": [
+      {
+        "id": "node-1772972721041",
+        "type": "sentiment",
+        "data": {
+          "text": "sentiment"
+        }
+      },
+      {
+        "id": "node-1772972722236",
+        "type": "trigger",
+        "data": {
+          "text": "trigger"
+        }
+      },
+      {
+        "id": "node-1772972724360",
+        "type": "email",
+        "data": {
+          "text": "email",
+          "to": "prathameshsharma27@gmail.com",
+          "subject": "Review of the product"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "xy-edge__node-1772972722236-node-1772972721041",
+        "source": "node-1772972722236",
+        "target": "node-1772972721041"
+      },
+      {
+        "id": "xy-edge__node-1772972721041-node-1772972724360",
+        "source": "node-1772972721041",
+        "target": "node-1772972724360"
+      }
+    ]
+  }
+}
