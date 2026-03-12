@@ -70,7 +70,7 @@ function AppContent() {
     setGenerating(true);
     setGenerateError('');
     try {
-      const response = await axios.post('http://localhost:3000/workflow/generate', { description });
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/workflow/generate`, { description });
       const { workflow } = response.data;
       setNodes(
         workflow.nodes.map((node, index) => ({
@@ -94,7 +94,7 @@ function AppContent() {
   const handleExecute = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:3000/workflow/execute', serializeWorkflow(nodes, edges));
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/workflow/execute`, serializeWorkflow(nodes, edges));
       setResults(response.data);
       const resultMap = {};
       response.data.outputs.results.forEach((result) => {
@@ -116,7 +116,7 @@ function AppContent() {
 
   const handleSaveWorkflow = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/webhook/save', serializeWorkflow(nodes, edges));
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/webhook/save`, serializeWorkflow(nodes, edges));
       setWebhookUrl(response.data.webhookUrl);
     } catch (error) {
       console.error('Error saving workflow:', error.response?.data || error.message);

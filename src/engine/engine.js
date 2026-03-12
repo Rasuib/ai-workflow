@@ -11,6 +11,15 @@ class Engine {
             throw new Error("Workflow must have edges and nodes arrays");
         }
 
+        const triggerNodes = workflow.nodes.filter(node => node.type === "trigger");
+        if (triggerNodes.length === 0) {
+            throw new Error("Workflow must have at least one trigger node");
+        }else if (triggerNodes.length > 1) {
+            throw new Error("Workflow cannot have more than one trigger node");
+        }
+        
+        
+
         const set = new Set();
         workflow.nodes.forEach(node => {
             if (!node.id || !node.type) {
@@ -156,4 +165,4 @@ class Engine {
     }
 }
     
-export default Engine;
+export default Engine;  
